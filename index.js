@@ -24,8 +24,8 @@ app.post("/createuser", async (req, res) => {
 
   const { username, password } = req.body;
 
-  if(password.length<6){
-    return res.json({"msg":"too small password"})
+  if (password.length < 6) {
+    return res.json({ msg: "too small password" });
   }
 
   const response1 = await userModel.findOne({
@@ -44,10 +44,38 @@ app.post("/createuser", async (req, res) => {
   }
 });
 
+app.post("/addtodo", async (req, res) => {
+  const { username, todo } = req.body;
 
+  const response1 = await userModel.findOne({
+    username,
+  });
 
+  if (!response1) {
+    return res.json({ msg: "user does not exist" });
+  } else {
+    const response = await userModel.updateOne(
+      { username },
+      { $push: { todos: todo } }
+    );
 
+    return res.json({ msg: "todo has been added " });
+  }
+});
 
+app.get("/getdata", async (req, res) => {
+  const username = req.body.username;
+
+  const data = await userModel.findOne({
+    username,
+  });
+
+  if (!data) {
+    return res.json({ msg: "user does not exist" });
+  } else {
+    return res.json({ todos: data.todos });
+  }
+});
 
 app.listen(port, () => {
   console.log("running on " + port);
